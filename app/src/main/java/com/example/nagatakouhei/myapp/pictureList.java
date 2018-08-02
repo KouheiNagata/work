@@ -2,14 +2,21 @@ package com.example.nagatakouhei.myapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,42 +27,45 @@ public class pictureList extends Activity implements AdapterView.OnItemClickList
     private ArrayList<Map<String, Object>> pictureList = new ArrayList<Map<String, Object>>();
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         prePictureList = new ArrayList<File>();
 
-
         // SDカードにアクセス
-            File file = new  File("/storage/emulated/0/");//SDカードにアクセス
-            searchPictureFile(file);
+        File file = new File("/storage/emulated/0/");//SDカードにアクセス
+        searchPictureFile(file);
 
-            for(File f :prePictureList){
-                Map data = new HashMap();
-                data.put("thumbnail","");
-                data.put("fileName","title : "+getFileName(f.getName()));
-                data.put("fileSize","size : "+String.valueOf(f.length()));
-                pictureList.add(data);
-            }
+        for (File f : prePictureList) {
+            Map data = new HashMap();
+            data.put("thumbnail",prePictureList);
+            data.put("fileName", "title : " + getFileName(f.getName()));
+            data.put("fileSize", "size : " + String.valueOf(f.length()));
+            pictureList.add(data);
+        }
 
-            SimpleAdapter simpleAdapter = new SimpleAdapter(
+        SimpleAdapter simpleAdapter = new SimpleAdapter(
                 this,
                 pictureList,
                 R.layout.list_item,
-                new String[]{"img","fileName","fileSize"},
-                new int[]{R.id.thumbnail,R.id.fileName,R.id.fileSize}
-                );
+                new String[]{"img", "fileName", "fileSize"},
+                new int[]{R.id.thumbnail, R.id.fileName, R.id.fileSize}
+        );
 
-            ListView listView =(ListView)findViewById(R.id.listView);
-            listView.setAdapter(simpleAdapter);
-            listView.setOnItemClickListener(this);
-    }
+        ListView listView = (ListView) findViewById(R.id.listView);
+        listView.setAdapter(simpleAdapter);
 
-    public void onClick(View view){
-        Log.d("test","画面呼び出し");
-        Intent intent = new Intent(this, picture.class);
-        startActivity(intent);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplication(), picture.class);
+                intent.setType("image/jpeg");
+                intent.putExtra("picture", prePictureList.get(position));
+                startActivity(intent);
+            }
+        });
+
     }
 
     // 指定したパスの中から jpegファイルを取得する
@@ -85,7 +95,6 @@ public class pictureList extends Activity implements AdapterView.OnItemClickList
         }
         return newName;
     }
-
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

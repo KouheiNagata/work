@@ -2,12 +2,21 @@ package com.example.nagatakouhei.myapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.ImageView;
 
-public class picture {
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+public class picture extends Activity{
 
 
-    public class SubActivity extends Activity {
         /**
          * Called when the activity is first created.
          */
@@ -16,8 +25,19 @@ public class picture {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.picture);
 
+            ImageView view = findViewById(R.id.picture);
+
+            Intent intent = getIntent();
+            File file = (File) intent.getSerializableExtra("picture");
+
+            try {
+                InputStream stream = new FileInputStream(file);
+                Bitmap bmp = BitmapFactory.decodeStream(new BufferedInputStream(stream));
+                view.setImageBitmap(bmp);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
-
-}
